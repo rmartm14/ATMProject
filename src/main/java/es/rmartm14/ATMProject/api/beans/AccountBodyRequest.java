@@ -6,15 +6,14 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * Account Info bean for API
+ * Bean to take info to login
  *
- * @author Rafael Martínez
+ * @author Rafael Martinez
  */
 @Data
 @AllArgsConstructor
-public class AccountInfo implements Serializable {
+public class AccountBodyRequest implements Serializable {
 
     private Long accountNumber;
-    private Double balance;
-    private Double overdraft;
+    private Integer pin;
 }

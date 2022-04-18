@@ -4,9 +4,15 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.io.Serializable;
 import java.time.Instant;
 
-public class BaseDocument {
+/**
+ * Base document class to save on mongo
+ *
+ * @author Rafael Martinez
+ */
+public class BaseDocument implements Serializable {
 
     @Id
     private String id;

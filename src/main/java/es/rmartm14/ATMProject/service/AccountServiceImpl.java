@@ -5,6 +5,7 @@ import es.rmartm14.ATMProject.repositories.AccountRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Account Service Implementation
@@ -27,8 +28,31 @@ public class AccountServiceImpl implements AccountService{
      * {@inheritDoc}
      */
     @Override
-    public boolean checkLogin(Long accountNumber, Integer pin) {
+    public String checkLogin(Long accountNumber, Integer pin) {
         Account account = this.accountRepository.findByAccountNumber(accountNumber);
-        return account != null && Objects.equals(account.getPin(), pin);
+        //Token are made by a randomUUID + accountNumber
+        if(Objects.equals(account.getAccountNumber(), accountNumber) && Objects.equals(pin, account.getPin())){
+            final String token = UUID.randomUUID().toString() + accountNumber;
+            account.setAccessToken(token);
+            this.accountRepository.save(account);
+            return token;
+        }
+        return null;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Account getAccountInfo(String auth) {
+        return this.accountRepository.findByAccessToken(auth);
+    }
+
+    @Override
+    public void saveAccountMovement(Account account) {
+        this.accountRepository.save(account);
+    }
+
+
 }

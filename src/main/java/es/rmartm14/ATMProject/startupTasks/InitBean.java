@@ -45,8 +45,8 @@ public class InitBean implements ApplicationListener<ContextRefreshedEvent> {
         }
     }
     private void insertAccounts() {
-        Account a = new Account(123456789L, 1234, 800d,200d);
-        Account b = new Account(987654321L, 1234, 1230d, 150d);
+        Account a = new Account(123456789L, 1234, 800d,200d, "");
+        Account b = new Account(987654321L, 1234, 1230d, 150d, "");
         acRepo.insert(a);
         acRepo.insert(b);
     }

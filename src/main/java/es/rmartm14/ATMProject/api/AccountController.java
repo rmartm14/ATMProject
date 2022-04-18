@@ -1,13 +1,15 @@
 package es.rmartm14.ATMProject.api;
 
+import es.rmartm14.ATMProject.api.beans.AccountBodyRequest;
 import es.rmartm14.ATMProject.api.beans.AccountInfo;
-import es.rmartm14.ATMProject.repositories.AccountRepository;
+import es.rmartm14.ATMProject.model.Account;
+import es.rmartm14.ATMProject.model.Transaction;
+import es.rmartm14.ATMProject.service.ATMService;
 import es.rmartm14.ATMProject.service.AccountService;
+import es.rmartm14.ATMProject.service.TransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Rest controller to involve operations with the account
@@ -18,13 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     private final AccountService accountService;
+    private final ATMService atmService;
+    private final TransactionService transactionService;
 
     /**
      * Basic constructor of the account Controller
-     * @param accountService accountRepository to access account on mongo db
+     *
+     * @param accountService     accountRepository to access account on mongo db
+     * @param atmService         atm service in order to interact with the atm
+     * @param transactionService transaction service
      */
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService, ATMService atmService, TransactionService transactionService) {
         this.accountService = accountService;
+        this.atmService = atmService;
+        this.transactionService = transactionService;
     }
 
     /**
@@ -33,8 +42,51 @@ public class AccountController {
      * @param accountInfo account info request in petition body
      */
     @PostMapping("/login")
-    public ResponseEntity<Boolean> login(@RequestBody AccountInfo accountInfo) {
-        return new ResponseEntity<>(this.accountService.checkLogin(accountInfo.getAccountNumber(), accountInfo.getPin()), HttpStatus.OK);
+    public ResponseEntity<String> login(@RequestBody AccountBodyRequest accountInfo) {
+        final String token = this.accountService.checkLogin(accountInfo.getAccountNumber(), accountInfo.getPin());
+        if(token != null){
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Account info provided is not correct. Please, try again", HttpStatus.BAD_REQUEST);
     }
+
+    /**
+     * Account status method in order to know how the account is going
+     *
+     * @param authorization authorization param
+     *
+     * @return returns the accountInfo
+     */
+    @GetMapping("/account/info")
+    public ResponseEntity<AccountInfo> accountStatus(@RequestHeader String authorization){
+        final Account account = this.accountService.getAccountInfo(authorization);
+        if (account != null){
+            AccountInfo accountInfo = new AccountInfo(account.getAccountNumber(), account.getBalance(), account.getOverdraft());
+            return new ResponseEntity<>(accountInfo, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Method to get the money from the account. It has to take into account the money that has the atm at the moment and the money that
+     * the account has.
+     *
+     * @param authorization authorization string needed to perform operations
+     * @param money money to withdraw
+     * @return transaction information
+     */
+    @PostMapping("/account/withdrawal")
+    public ResponseEntity<Transaction> accountWithdrawal(@RequestHeader String authorization, @RequestBody Long money){
+        final Account account = this.accountService.getAccountInfo(authorization);
+        final Transaction transaction = this.atmService.withdrawMoney(account, money);
+        if(transaction != null){
+            this.transactionService.makeTransaction(transaction);
+            return new ResponseEntity<>(transaction, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    }
+
+
+
 
 }

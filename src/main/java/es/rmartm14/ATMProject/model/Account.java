@@ -19,4 +19,5 @@ public class Account extends BaseDocument{
     private Integer pin;
     private Double balance;
     private Double overdraft;
+    private String accessToken;
 }

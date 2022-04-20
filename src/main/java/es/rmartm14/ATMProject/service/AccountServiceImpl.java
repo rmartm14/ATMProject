@@ -31,7 +31,7 @@ public class AccountServiceImpl implements AccountService{
     public String checkLogin(Long accountNumber, Integer pin) {
         Account account = this.accountRepository.findByAccountNumber(accountNumber);
         //Token are made by a randomUUID + accountNumber
-        if(Objects.equals(account.getAccountNumber(), accountNumber) && Objects.equals(pin, account.getPin())){
+        if(account != null && Objects.equals(account.getAccountNumber(), accountNumber) && Objects.equals(pin, account.getPin())){
             final String token = UUID.randomUUID().toString() + accountNumber;
             account.setAccessToken(token);
             this.accountRepository.save(account);

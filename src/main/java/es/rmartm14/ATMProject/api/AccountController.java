@@ -48,7 +48,7 @@ public class AccountController {
         if(token != null){
             return new ResponseEntity<>(token, HttpStatus.OK);
         }
-        return new ResponseEntity<>("Account info provided is not correct. Please, try again", HttpStatus.BAD_REQUEST);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account info provided is not correct. Please, try again");
     }
 
     /**
@@ -65,7 +65,7 @@ public class AccountController {
             AccountInfo accountInfo = new AccountInfo(account.getAccountNumber(), account.getBalance(), account.getOverdraft());
             return new ResponseEntity<>(accountInfo, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account Info cannot be found. Please, check your authorization.");
     }
 
     /**

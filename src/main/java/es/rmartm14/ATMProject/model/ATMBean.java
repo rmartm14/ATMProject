@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Data
 @Document
-@AllArgsConstructor
 public class ATMBean {
     private int bill50;
     private int bill20;

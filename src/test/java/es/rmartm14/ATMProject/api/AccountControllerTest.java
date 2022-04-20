@@ -22,4 +22,15 @@ public class AccountControllerTest {
         Assertions.assertNotNull(accountController.login(new AccountBodyRequest(1234L, 1234)).getBody());
 
     }
+
+    @Test
+    void loginTestNull() {
+        AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
+        AccountService accountService = new AccountServiceImpl(accountRepository);
+        AccountController accountController = new AccountController(accountService, Mockito.mock(ATMService.class), null);
+        Mockito.when(accountRepository.findByAccountNumber(Mockito.anyLong())).thenReturn(new Account(1234L,1234,1d,1d, ""));
+
+        Assertions.assertNotNull(accountController.login(new AccountBodyRequest(1234L, 3211)).getBody());
+
+    }
 }

@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Data
 @Document
-@NoArgsConstructor
 @AllArgsConstructor
 public class Account extends BaseDocument{
     private Long accountNumber;

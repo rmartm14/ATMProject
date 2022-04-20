@@ -22,12 +22,25 @@ public class ATMServiceTest {
         ATMService atmService = new ATMServiceImpl(atmRepository, accountService);
 
         Transaction transaction = atmService.withdrawMoney(account, 400L);
+        Assertions.assertEquals(0, transaction.getBill5());
+        Assertions.assertEquals(0, transaction.getBill10());
+        Assertions.assertEquals(0, transaction.getBill20());
         Assertions.assertEquals(8, transaction.getBill50());
         Assertions.assertEquals(400, transaction.getMoney());
+        Assertions.assertEquals(account.getAccountNumber().toString(), transaction.getAccountId());
 
-        Assertions.assertEquals(400,account.getBalance());
+        Assertions.assertEquals(400, account.getBalance());
+        //assert account token isnt changed
+        Assertions.assertEquals("", account.getAccessToken());
         Assertions.assertEquals(2, atm.getBill50());
+        Assertions.assertEquals(20, atm.getBill5());
+        Assertions.assertEquals(30, atm.getBill10());
+        Assertions.assertEquals(30, atm.getBill20());
+
         Assertions.assertEquals(1100, atm.getTotalMoney());
 
     }
 }
+
+
+

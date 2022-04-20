@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
  * @author Rafael Martinez
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-@NoArgsConstructor
 public class Transaction extends BaseDocument {
 
     private String accountId;

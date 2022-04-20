@@ -1,5 +1,6 @@
 package es.rmartm14.ATMProject.service;
 
+import es.rmartm14.ATMProject.exception.CustomException;
 import es.rmartm14.ATMProject.model.Account;
 import es.rmartm14.ATMProject.model.Transaction;
 
@@ -16,5 +17,5 @@ public interface ATMService {
      * @param money money to extract
      * @return transaction information
      */
-    Transaction withdrawMoney(Account account, Long money);
+    Transaction withdrawMoney(Account account, Long money) throws CustomException;
 }

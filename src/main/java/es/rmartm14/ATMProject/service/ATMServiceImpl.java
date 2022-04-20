@@ -1,11 +1,13 @@
 package es.rmartm14.ATMProject.service;
 
+import es.rmartm14.ATMProject.exception.CustomException;
 import es.rmartm14.ATMProject.model.ATMBean;
 import es.rmartm14.ATMProject.model.Account;
 import es.rmartm14.ATMProject.model.Transaction;
 import es.rmartm14.ATMProject.repositories.ATMRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -36,7 +38,7 @@ public class ATMServiceImpl implements ATMService{
      */
     @Override
     @Transactional
-    public Transaction withdrawMoney(Account account, Long money) {
+    public Transaction withdrawMoney(Account account, Long money) throws CustomException {
         List<ATMBean> atms = this.atmRepository.findAll();
         Transaction transaction = null;
         ATMBean atmBean = !atms.isEmpty() ? atms.get(0) : null;
@@ -49,24 +51,26 @@ public class ATMServiceImpl implements ATMService{
                 this.atmRepository.save(atmBean);
                 this.accountService.saveAccountMovement(account);
             }
+            else{
+                throw new CustomException("Cannot make the current transaction: Your account doesn't have that funds", "400", "Error in the transaction");
+            }
+        }
+        else{
+            throw new CustomException("Cannot make the current transaction: ATM Bean is not created or has not enough money", "400", "Error in the transaction");
         }
         return transaction;
     }
 
-    private Transaction createTransaction(Account account, ATMBean atmBean, Long money) {
+    private Transaction createTransaction(Account account, ATMBean atmBean, Long money) throws CustomException {
         account.setOverdraft(account.getBalance() < money ? account.getOverdraft() - (account.getBalance() - money) : account.getOverdraft());
         account.setBalance(account.getBalance() < money ? 0 : account.getBalance() - money);
         Transaction transaction = null;
-        try {
-            transaction = this.checkBills(account, atmBean, money);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        transaction = this.checkBills(account, atmBean, money);
 
         return transaction;
     }
 
-    private Transaction checkBills(Account account, ATMBean atmBean, Long money) throws Exception {
+    private Transaction checkBills(Account account, ATMBean atmBean, Long money) throws CustomException {
         Transaction transaction = new Transaction(account.getAccountNumber().toString(), money, 0,0,0,0);
 
         while(money > 0 ){
@@ -90,7 +94,7 @@ public class ATMServiceImpl implements ATMService{
                 atmBean.setBill5(atmBean.getBill5()-1);
             }
             else{
-                throw new Exception();
+                throw new CustomException("Internal Error", "400", "Internal Error");
             }
         }
         return transaction;

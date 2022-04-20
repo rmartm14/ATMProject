@@ -10,8 +10,8 @@ import java.io.Serializable;
  *
  * @author Rafael Martinez
  */
-@Data
 @AllArgsConstructor
+@Data
 public class AccountBodyRequest implements Serializable {
 
     private Long accountNumber;
